@@ -5,14 +5,11 @@ public class Builder : MonoBehaviour
 {
     [SerializeField] private Camera _camera;
     [SerializeField] private GameObject _buildingPrefab;
-    [SerializeField] Transform pointer;
     [SerializeField] LayerMask _layerMask;
-    
+    [SerializeField] Pointer _pointer;
     private Regime regime;
 
-    [SerializeField] MeshRenderer _pointerRenderer;
-    [SerializeField] Material _materialOk;
-    [SerializeField] Material _materialError;
+    
 
     List<Vector3> occupiedCells;
 
@@ -20,7 +17,7 @@ public class Builder : MonoBehaviour
 
     private void Start()
     {
-        pointer.gameObject.SetActive(false);
+        _pointer.Enable(false);
         occupiedCells = new List<Vector3>();
     }
 
@@ -34,30 +31,31 @@ public class Builder : MonoBehaviour
                 Vector3 position = hit.point;
                 position = new Vector3(Mathf.RoundToInt(position.x), 0, Mathf.RoundToInt(position.z));
 
-                pointer.position = position;
-                _pointerRenderer.material = _materialOk;
+                _pointer.transform.position = position;
+
+                _pointer.UpdateMaterial(error: false);
             }
             else
             {
-                _pointerRenderer.material = _materialError;
+                _pointer.UpdateMaterial(true);
             }
 
             bool canBuild = true;
-            if(occupiedCells.Contains(pointer.position))
+            if(occupiedCells.Contains(_pointer.transform.position))
             {
-                _pointerRenderer.material = _materialError;
+                _pointer.UpdateMaterial(error: true);
                 canBuild = false;
             }
 
             if (Input.GetMouseButtonDown(0) && canBuild)
             {
-                Build(pointer.position);
-                pointer.gameObject.SetActive(false);
+                Build(_pointer.transform.position);
+                _pointer.Enable(false);
                 regime = Regime.Idle;
             }
             if (Input.GetMouseButtonDown(1))
             {
-                pointer.gameObject.SetActive(false);
+                _pointer.Enable(false);
                 regime = Regime.Idle;
             }
         }
@@ -65,7 +63,8 @@ public class Builder : MonoBehaviour
 
     public void BuildingRegime(Building building)
     {
-        pointer.gameObject.SetActive(true);
+        _pointer.SetPreview(building.preview);
+        _pointer.Enable(true);
         regime = Regime.Building;
         selectedBuilding = building;
     }

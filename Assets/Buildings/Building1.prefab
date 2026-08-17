@@ -125,6 +125,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 39d67d0b375100c49828514c19df7df6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Building
+  preview: {fileID: 0}
 --- !u!1 &5408101091675760192
 GameObject:
   m_ObjectHideFlags: 0
@@ -170,3 +171,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 39d67d0b375100c49828514c19df7df6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Building
+  preview: {fileID: 7537571326798575327, guid: 531e39bcd98f37b48a7467c55975ef4d, type: 3}

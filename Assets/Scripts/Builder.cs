@@ -47,17 +47,17 @@ public class Builder : MonoBehaviour
                 canBuild = false;
             }
 
-            if (Input.GetMouseButtonDown(0) && canBuild)
+            if (Input.GetMouseButtonUp(0) && canBuild)
             {
                 Build(_pointer.transform.position);
                 _pointer.Enable(false);
                 regime = Regime.Idle;
             }
-            if (Input.GetMouseButtonDown(1))
-            {
-                _pointer.Enable(false);
-                regime = Regime.Idle;
-            }
+            //if (Input.GetMouseButtonDown(1))
+            //{
+            //    _pointer.Enable(false);
+            //    regime = Regime.Idle;
+            //}
         }
     }
 

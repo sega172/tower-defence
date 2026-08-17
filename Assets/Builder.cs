@@ -1,51 +1,91 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 public class Builder : MonoBehaviour
 {
+    [SerializeField] private Camera _camera;
     [SerializeField] private GameObject _buildingPrefab;
-    [SerializeField] Transform _currentBuilding;
     [SerializeField] Transform pointer;
     [SerializeField] LayerMask _layerMask;
+    
+    private Regime regime;
+
+    [SerializeField] MeshRenderer _pointerRenderer;
+    [SerializeField] Material _materialOk;
+    [SerializeField] Material _materialError;
+
+    List<Vector3> occupiedCells;
+
+
+    private void Start()
+    {
+        pointer.gameObject.SetActive(false);
+        occupiedCells = new List<Vector3>();
+    }
+
     private void Update()
     {
 
-        if (_currentBuilding != null && Input.GetKeyDown(KeyCode.Alpha2))
+        if (regime == Regime.Idle)
         {
-            Destroy(_currentBuilding.gameObject);
-            _currentBuilding = null;
-        }
-
-        if (_currentBuilding == null)
-        {
-            if (Input.GetKeyDown(KeyCode.Alpha1))
+            if (Input.GetMouseButtonDown(1))
             {
-                _currentBuilding = Instantiate(_buildingPrefab).transform;
+                pointer.gameObject.SetActive(true);
+                regime = Regime.Building;
             }
             else
             {
                 return;
             }
         }
-
-        Vector3 origin = Camera.main.transform.position;
-        Vector3 direction = Camera.main.transform.forward;
-
-        
-
-        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out RaycastHit hit, 1000, layerMask: _layerMask))
+        else
         {
-            print(hit.point);
-            Vector3 position = hit.point;
-            position = new Vector3(Mathf.RoundToInt(position.x),0, Mathf.RoundToInt(position.z));
+            Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
+            if (Physics.Raycast(ray, out RaycastHit hit, 1000, layerMask: _layerMask))
+            {
+                Vector3 position = hit.point;
+                position = new Vector3(Mathf.RoundToInt(position.x), 0, Mathf.RoundToInt(position.z));
 
-            pointer.position = position;
-            _currentBuilding.transform.position = position;
-        }
+                pointer.position = position;
+                _pointerRenderer.material = _materialOk;
+            }
+            else
+            {
+                _pointerRenderer.material = _materialError;
+            }
 
-        if (Input.GetMouseButtonDown(0))
-        {
-            _currentBuilding = null;
+            bool canBuild = true;
+            if(occupiedCells.Contains(pointer.position))
+            {
+                _pointerRenderer.material = _materialError;
+                canBuild = false;
+            }
+
+            if (Input.GetMouseButtonDown(0) && canBuild)
+            {
+                Build(pointer.position);
+                pointer.gameObject.SetActive(false);
+                regime = Regime.Idle;
+            }
+            if (Input.GetMouseButtonDown(1))
+            {
+                pointer.gameObject.SetActive(false);
+                regime = Regime.Idle;
+            }
         }
     }
+
+    public void Build(Vector3 position)
+    {
+        Instantiate(_buildingPrefab, position, Quaternion.identity);
+        occupiedCells.Add(position);
+    }
+
+    enum Regime
+    {
+        Idle,
+        Building,
+    }
+
+
 }

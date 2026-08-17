@@ -16,6 +16,7 @@ public class Builder : MonoBehaviour
 
     List<Vector3> occupiedCells;
 
+    private Building selectedBuilding;
 
     private void Start()
     {
@@ -25,20 +26,7 @@ public class Builder : MonoBehaviour
 
     private void Update()
     {
-
-        if (regime == Regime.Idle)
-        {
-            if (Input.GetMouseButtonDown(1))
-            {
-                pointer.gameObject.SetActive(true);
-                regime = Regime.Building;
-            }
-            else
-            {
-                return;
-            }
-        }
-        else
+        if(regime == Regime.Building)
         {
             Ray ray = _camera.ScreenPointToRay(Input.mousePosition);
             if (Physics.Raycast(ray, out RaycastHit hit, 1000, layerMask: _layerMask))
@@ -75,9 +63,16 @@ public class Builder : MonoBehaviour
         }
     }
 
+    public void BuildingRegime(Building building)
+    {
+        pointer.gameObject.SetActive(true);
+        regime = Regime.Building;
+        selectedBuilding = building;
+    }
+
     public void Build(Vector3 position)
     {
-        Instantiate(_buildingPrefab, position, Quaternion.identity);
+        Instantiate(selectedBuilding, position, Quaternion.identity);
         occupiedCells.Add(position);
     }
 
@@ -86,6 +81,4 @@ public class Builder : MonoBehaviour
         Idle,
         Building,
     }
-
-
 }
